@@ -16,15 +16,13 @@
       '<span class="brand__text"><b>' + esc(st.institution || 'Attendance Register') + '</b><small>Attendance Register</small></span></a>';
   }
 
-  // The school logo. Drop the official file at assets/logo.png and it
-  // replaces the drawn crest automatically.
+  // The school seal from assets/logo.png, on a white disc. If the file is
+  // missing, a drawn "BSP" shield is shown instead.
   function crest(big) {
     return '<span class="crest' + (big ? ' crest--lg' : '') + '" aria-hidden="true">' +
+      '<img src="assets/logo.png" alt="" onerror="this.parentNode.classList.add(\'crest--svg\');this.remove()">' +
       '<svg viewBox="0 0 48 56"><path class="crest__shield" d="M24 2 44 8v19c0 13-8.5 22.5-20 27C12.5 49.5 4 40 4 27V8z"/>' +
-      '<path class="crest__rule" d="M9 11.5 24 7l15 4.5"/>' +
-      '<text class="crest__text" x="24" y="33" text-anchor="middle">BSP</text>' +
-      '<path class="crest__rule" d="M14 40h20"/></svg>' +
-      '<img src="assets/logo.png" alt="" onerror="this.remove()"></span>';
+      '<text class="crest__text" x="24" y="33" text-anchor="middle">BSP</text></svg></span>';
   }
   V.crest = crest;
   V.brand = brand;
@@ -50,7 +48,7 @@
       '<section class="auth__brand">' +
         brand(true) +
         '<div class="auth__pitch">' +
-          '<p class="eyebrow eyebrow--light">' + esc(st.department) + ' &middot; ' + esc(st.session) + '</p>' +
+          '<p class="pill"><span class="pill__dot"></span>' + esc(st.department) + ' &middot; ' + esc(st.session) + '</p>' +
           '<h1 class="auth__title">The class register, <em>without the paper.</em></h1>' +
           '<p class="auth__lede">Lecturers take attendance in under a minute. The department can see who is falling below the ' + st.threshold + '% exam line before it is too late.</p>' +
           (st.motto ? '<p class="auth__motto">' + esc(st.motto) + '</p>' : '') +

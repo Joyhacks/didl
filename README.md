@@ -39,10 +39,12 @@ The app comes with sample data: two levels (ND I and ND II), six courses, four l
 | **HOD / Admin** | Department overview (weekly chart, courses, students at risk, lecturer activity) · Courses (assign lecturers) · Students (register and remove) · Lecturers · Exam eligibility report (per level, CSV, print) · Settings |
 | **Students and parents** | Check attendance with a matric number: rate per course, exam status, printable slip |
 
-## Adding the school logo and colours
+## Branding
 
-- **Logo:** save the official logo as `assets/logo.png`. It replaces the drawn "BSP" crest everywhere, with no code changes.
-- **Colours:** the first block of `css/styles.css` holds `--brand`, `--brand-2` and `--gold`. Change those three values to the school's colours and the whole app follows.
+The design follows the school's website (bestpotech.edu.ng): the school seal, forest and bright greens, amber accents, Montserrat headings and Roboto body text.
+
+- **Logo:** `assets/logo.png`. This was cut from a phone screenshot, so replace it with the original file if you can get one, for a sharper image.
+- **Colours:** the "School brand" block at the top of `css/styles.css`.
 
 ## Project structure
 
@@ -62,4 +64,4 @@ docs/PLAN.md          project plan and presentation guide
 
 ## Tech
 
-Plain HTML, CSS and JavaScript, with no framework and no build step. The fonts are Newsreader and IBM Plex, from Google Fonts.
+Plain HTML, CSS and JavaScript, with no framework and no build step. The fonts are Montserrat, Roboto and IBM Plex Mono, from Google Fonts.

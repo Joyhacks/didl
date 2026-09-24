@@ -12,8 +12,8 @@
 (function () {
   'use strict';
 
-  var KEY = 'rollbook.v2';
-  var AUTH_KEY = 'rollbook.auth';
+  var KEY = 'bsp-attendance.v3';
+  var AUTH_KEY = 'bsp-attendance.auth';
   var MARKS = ['P', 'L', 'A', 'E'];
   var LEVELS = ['ND I', 'ND II', 'HND I', 'HND II'];
 
@@ -126,7 +126,7 @@
           var r = rand();
           marks[s.id] = r < s._r ? (rand() < 0.08 ? 'L' : 'P') : (rand() < 0.2 ? 'E' : 'A');
         });
-        lectures.push({ id: uid('l'), courseId: c.id, date: keyOf(d), time: c.time, topic: c.topics[n] || (n % 2 ? 'Practical session' : 'Tutorial and class exercise'), marks: marks });
+        lectures.push({ id: uid('l'), courseId: c.id, date: keyOf(d), time: c.time, topic: n % 3 === 2 ? 'Practical session' : c.topics[Math.min(n - Math.floor(n / 3), c.topics.length - 1)], marks: marks });
         count[c.id]++;
       });
     }
@@ -134,7 +134,7 @@
     students.forEach(function (s) { delete s._r; });
     courses.forEach(function (c) { delete c.topics; });
 
-    return { version: 2, settings: settings, users: users, courses: courses, students: students, lectures: lectures };
+    return { version: 3, settings: settings, users: users, courses: courses, students: students, lectures: lectures };
   }
 
   /* ------------------------------------------------------------ storage */
@@ -143,7 +143,7 @@
 
   function load() {
     try { state = JSON.parse(localStorage.getItem(KEY)); } catch (e) { state = null; }
-    if (!state || state.version !== 2) { state = seed(); save(); }
+    if (!state || state.version !== 3) { state = seed(); save(); }
   }
   function save() {
     try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* private mode: keep going in memory */ }

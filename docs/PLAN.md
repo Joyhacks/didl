@@ -90,7 +90,7 @@ A student with no mark for a lecture counts as absent. Excused absences (for exa
 
 - **Language:** HTML, CSS, JavaScript, with no framework, so the code is easy to explain and runs anywhere.
 - **Storage:** browser localStorage for the prototype.
-- **Design:** the Best Solution Polytechnic name, crest and motto; navy and gold; a layout inspired by the paper register (red margin line, `/` for present, `O` for absent).
+- **Design:** follows the school website: the Best Solution Polytechnic seal, green and amber colours, and Montserrat and Roboto fonts. It also borrows from the paper register (red margin line, `/` for present, `O` for absent).
 - **Works on:** desktop, tablet and phone, with light and dark mode and printable reports.
 
 ## 6. Limitations and future work
@@ -121,7 +121,6 @@ A student with no mark for a lecture counts as absent. Excused absences (for exa
 ### Before the presentation
 
 - [ ] Open the app the day before and use **Settings → Reset demo data**, so today's lectures are still unmarked
-- [ ] Put the school logo in `assets/logo.png`
 - [ ] Add your supervisor's name in **Settings**
 - [ ] Use Chrome or Edge at full screen, zoomed to 110–125%
 - [ ] Have a copy of the project folder on the laptop in case the internet fails

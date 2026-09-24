@@ -1,5 +1,5 @@
 # School logo
 
-Save the official Best Solution Polytechnic logo here as **`logo.png`**, ideally a transparent PNG about 256 px tall.
+`logo.png` is the Best Solution Polytechnic seal. It is used in the sidebar, the page headers, the sign-in page and the browser tab.
 
-Once the file is in place, it automatically replaces the drawn "BSP" crest in the sidebar, on the sign-in page and in the page headers. You don't need to change any code.
+It was cut from a phone screenshot, so it is small (220 × 220 px). To make it sharper, replace it with the original logo file, keeping the name `logo.png`. A square PNG of at least 256 × 256 px works best. You don't need to change any code.
