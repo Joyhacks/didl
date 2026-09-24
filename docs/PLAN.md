@@ -1,104 +1,134 @@
-# Rollbook: Project Plan & Presentation Guide
+# Project Plan & Presentation Guide
 
-## 1. The problem
+**Topic:** Design and Implementation of a Web-Based Student Attendance Register
+**Student:** Awodosu Ibrahim Olamilekan, BSP/CSC/ND/24/010
+**Programme:** National Diploma, Computer Science
+**Institution:** Best Solution Polytechnic, Akure, Ondo State
 
-In most schools, attendance still goes into a paper register:
+---
 
-- Taking the roll by hand eats into lesson time.
-- Totals and percentages are worked out by hand at the end of the month, and mistakes creep in.
-- A student who keeps missing school often goes unnoticed until the end of term.
-- If the book is lost or damaged, the record is gone.
+## 1. Background and problem
 
-## 2. The solution
+In most Nigerian polytechnics, attendance is taken on a sheet of paper passed round the lecture hall. This causes real problems:
 
-Rollbook is a digital attendance register that:
+- **Proxy signing:** students sign for absent friends.
+- **Lost sheets:** if a sheet goes missing, that lecture's record is gone.
+- **Late discovery:** the rule that a student needs **75% attendance to sit the exam** is checked by hand at the end of the semester, when it is too late for the student or lecturer to do anything about it.
+- **No overview:** the HOD cannot easily see which courses have poor attendance, or whether lecturers are taking attendance at all.
 
-1. Lets a teacher take the roll in under a minute, on a phone or a laptop.
-2. Keeps the familiar look of the paper register, so teachers don't have to relearn anything.
-3. Works out totals and percentages automatically.
-4. Flags students whose attendance drops below 85%.
-5. Exports the register to CSV (Excel) or prints it.
+## 2. Aim and objectives
 
-## 3. Who uses it
+**Aim:** to design and implement a web-based attendance register for the Department of Computer Science.
 
-| User | Need |
+**Objectives:**
+1. Let lecturers record attendance for each lecture quickly, on a phone or laptop.
+2. Calculate each student's attendance rate per course automatically.
+3. Flag students below the 75% exam-eligibility threshold as early as possible.
+4. Give the HOD a department-wide view and an exam eligibility report.
+5. Let students and parents check attendance with a matric number.
+
+## 3. Review of similar projects
+
+Similar attendance systems built by Nigerian students were reviewed:
+
+- **[Plateau State Polytechnic attendance system](https://github.com/Dotun-Balogun/plaploy-student-attendance-management-system)** has student, lecturer and admin roles, attendance per class session, 75% exam eligibility, and CSV/PDF export.
+- **[Development of a web-based student attendance management system](https://fnasjournals.com/index.php/FNAS-JCA/article/view/839)** (FNAS Journal) is a web-based design for a Nigerian department.
+- **[Design and implementation of a students' attendance management system](https://ijariie.com/AdminUploadPdf/DESIGN_AND_IMPLEMENTATION_OF_STUDENTS%E2%80%99_ATTENDANCE_MANAGEMENT_SYSTEM_ijariie21587.pdf)** (IJARIIE, 2023) covers an admin dashboard and student search by matric number.
+
+**What this project does differently:**
+- A student check needs only a matric number. There is no student account to create or forget.
+- **Early warning:** lecturers see each student's running percentage *while they take attendance*, and the HOD dashboard lists students at risk.
+- **Lecturer activity:** the HOD can see who is taking registers and when.
+- A design that feels like the familiar paper register, so there is almost nothing to learn.
+
+## 4. System design
+
+### Users and roles
+
+| Role | Can do |
 |---|---|
-| Class teacher | Mark attendance quickly each morning |
-| Form master / Head of year | See which students need follow-up |
-| School admin | Monthly records for reports and inspections |
+| HOD / Admin | Everything: manage courses, lecturers and students, view all registers, print the eligibility report, change settings |
+| Lecturer | Take and edit attendance for their own courses, view registers, look up students |
+| Student / Parent | Check attendance by matric number (read-only, no login) |
 
-## 4. Features (prototype scope)
-
-- **Today:** mark Present / Late / Absent / Excused, a live summary, *mark rest present*, search, and keyboard shortcuts
-- **Register:** a monthly grid with daily and student totals, editable cells, print, and CSV export
-- **Students:** add and remove students, create classes, and see each student's attendance rate
-- **Insights:** the monthly rate, a daily chart, the follow-up list, and the full-attendance list
-- Works on mobile, supports dark mode, and has a clean print layout
-
-## 5. How it's built
+### Architecture
 
 ```
- ┌─────────────────────┐
- │  Screens (app.js)   │  Today · Register · Students · Insights
- └─────────┬───────────┘
-           │ calls
- ┌─────────▼───────────┐
- │  Data layer         │  store.js: add student, set mark, tallies, CSV
- └─────────┬───────────┘
-           │ saves to
- ┌─────────▼───────────┐
- │  Browser storage    │  localStorage (today)  →  database/API (later)
- └─────────────────────┘
+ ┌──────────────────────────────┐
+ │ Screens (js/views/*.js)      │  sign in · dashboards · take attendance · reports
+ └──────────────┬───────────────┘
+                │ calls
+ ┌──────────────▼───────────────┐
+ │ Data layer (js/store.js)     │  sign in, courses, students, lectures, statistics
+ └──────────────┬───────────────┘
+                │ reads and writes
+ ┌──────────────▼───────────────┐
+ │ Browser storage (prototype)  │  →  database server (next stage)
+ └──────────────────────────────┘
 ```
 
-**Data model**
+### Data model
 
-- **Class:** id, name, code
-- **Student:** id, class, first name, surname, admission number
-- **Record:** class + date → { student → P | L | A | E }
-
-**Attendance rate** = (Present + Late) ÷ (days marked − Excused days)
-
-## 6. Design decisions
-
-- **Paper-register look.** Warm paper colours, navy ink, a red margin line, and the traditional `/` and `O` marks. Teachers recognise it straight away.
-- **Colour plus a letter.** Every status has its own letter (P, L, A, E), so the app still works for colour-blind users and on black-and-white printouts.
-- **Speed first.** The most common action, marking everyone present, takes one click.
-
-## 7. Roadmap (after the presentation)
-
-| Phase | What gets added |
+| Entity | Fields |
 |---|---|
-| 1. Backend | A database (e.g. Supabase or Firebase) so data is kept safely and shared between devices |
-| 2. Accounts | Teacher and admin logins, so each teacher sees only their own classes |
-| 3. Parents | An automatic SMS or email to a parent when a student is absent |
-| 4. Reports | Term reports as PDF, and school-wide dashboards |
-| 5. Offline | Take the register with no internet and sync it later |
+| Staff | id, role (admin / lecturer), title, name, position, staff ID, email, password |
+| Course | id, code (e.g. COM 221), title, level, units, lecturer |
+| Student | id, matric number, surname, first name, other name, level, gender |
+| Lecture | id, course, date, time, topic, marks { student → P / L / A / E } |
+| Settings | institution, department, session, semester, threshold (75%) |
 
-## 8. Presentation outline (8–10 minutes)
+### Attendance formula
 
-| # | Slide / Segment | Time | Notes |
+```
+rate = (Present + Late) ÷ (Lectures held − Excused)
+eligible = rate ≥ 75%
+```
+
+A student with no mark for a lecture counts as absent. Excused absences (for example a sick note) are not counted against the student.
+
+## 5. Implementation
+
+- **Language:** HTML, CSS, JavaScript, with no framework, so the code is easy to explain and runs anywhere.
+- **Storage:** browser localStorage for the prototype.
+- **Design:** the Best Solution Polytechnic name, crest and motto; navy and gold; a layout inspired by the paper register (red margin line, `/` for present, `O` for absent).
+- **Works on:** desktop, tablet and phone, with light and dark mode and printable reports.
+
+## 6. Limitations and future work
+
+| Limitation now | Next stage |
+|---|---|
+| Data is kept in one browser only | A database server (e.g. PostgreSQL via Supabase), so everyone shares the same data |
+| Demo passwords are stored in plain text | Real authentication with hashed passwords and password reset |
+| A student could sit in for a friend | QR code or fingerprint check-in |
+| No notifications | SMS or email to students and parents when they drop below 75% |
+| — | Integration with the school's course registration portal |
+
+## 7. Presentation outline (10 minutes)
+
+| # | Segment | Time | What to show or say |
 |---|---|---|---|
-| 1 | Title: *Rollbook: Student Attendance Register* | 0:30 | Name, class, date |
-| 2 | The problem with paper registers | 1:00 | Use the four points in section 1 |
-| 3 | Our solution | 1:00 | The five points in section 2 |
-| 4 | **Live demo: Today** | 2:00 | Mark a few students with the keyboard (P, L, A), then click *Mark rest present* |
-| 5 | **Live demo: Register** | 1:00 | Show the month grid, change a square, click *Export CSV* |
-| 6 | **Live demo: Insights** | 1:00 | Point out the students in "Needs follow-up" |
-| 7 | How it's built | 1:00 | The diagram and data model in section 5 |
-| 8 | Design choices | 0:45 | Section 6 |
-| 9 | What's next | 0:45 | The roadmap in section 7 |
+| 1 | Title slide | 0:30 | Topic, your name, matric number, supervisor |
+| 2 | The problem | 1:00 | Section 1: proxy signing, lost sheets, the 75% rule found out too late |
+| 3 | Aim and objectives | 0:45 | Section 2 |
+| 4 | Similar projects | 0:45 | Section 3, and what is different about yours |
+| 5 | **Demo: student check** | 1:00 | Sign-in page → "Are you a student?" → type `BSP/CSC/ND/24/010` → your own attendance slip |
+| 6 | **Demo: lecturer** | 2:00 | Sign in as Mr. Adeleke → "Take attendance" on today's lecture → press P, P, L, A → "Mark rest present" → open the course register |
+| 7 | **Demo: HOD** | 1:30 | Sign in as the HOD → overview: weekly chart, students at risk, lecturer activity → exam eligibility report → Print |
+| 8 | System design | 1:00 | Section 4: roles, architecture diagram, formula |
+| 9 | Limitations and future work | 0:30 | Section 6 |
 | 10 | Questions | — | |
 
-### Demo checklist
+### Before the presentation
 
-- [ ] Open the app the day before and click **Reset demo data**, so today is still unmarked
-- [ ] Use Chrome or Edge at full screen, with the zoom at 110–125% so the back of the room can read it
-- [ ] Have `index.html` open locally too, in case the internet goes down (the fonts fall back to built-in ones)
-- [ ] Practise the keyboard flow: ↓ ↓ P L A, then *Mark rest present*
+- [ ] Open the app the day before and use **Settings → Reset demo data**, so today's lectures are still unmarked
+- [ ] Put the school logo in `assets/logo.png`
+- [ ] Add your supervisor's name in **Settings**
+- [ ] Use Chrome or Edge at full screen, zoomed to 110–125%
+- [ ] Have a copy of the project folder on the laptop in case the internet fails
 
 ### Likely questions
 
-- **Where is the data stored?** For now, in the browser. The next phase moves it to a database, and only one file (`store.js`) has to change.
-- **Can two teachers use it at the same time?** Not yet. That comes with the backend and logins in phases 1 and 2.
-- **What if a student is sick?** Mark them Excused (E). Excused days don't count against their rate.
+- **"Where is the data stored?"** In the browser for this prototype. All data access goes through one file (`store.js`), so moving to a database server does not change the screens.
+- **"How do you stop proxy attendance?"** The lecturer marks attendance while looking at the class, instead of passing a sheet round. QR code or fingerprint check-in is planned for the next stage.
+- **"What happens if a student is sick?"** The lecturer marks them **E (Excused)**. That lecture does not count against them.
+- **"Can the 75% be changed?"** Yes. The HOD sets it in Settings, and every screen updates.

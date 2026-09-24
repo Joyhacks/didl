@@ -1,43 +1,65 @@
-# Rollbook: Student Attendance Register
+# Student Attendance Register: Best Solution Polytechnic
 
-Rollbook is a web-based attendance register for class teachers. It replaces the paper register book: you take the roll in about a minute, see the month at a glance, and spot the students who keep missing school.
+A web-based attendance register for the **Department of Computer Science, Best Solution Polytechnic, Akure**.
 
-This is a **front-end prototype**. It has no backend yet, and every record is saved in the browser (`localStorage`).
+**Project by:** Awodosu Ibrahim Olamilekan, **BSP/CSC/ND/24/010**, National Diploma in Computer Science
+
+Lecturers take the register for each lecture. The HOD sees the whole department in one place. Students check their own attendance with their matric number. The system automatically flags anyone below the **75% attendance needed to sit the exam**.
+
+> This is a front-end prototype with no backend yet. All data is stored in the browser (`localStorage`). It is a student project, not the official school portal.
 
 ## Run it
 
 You don't need to install anything.
 
-- **Easiest:** double-click `index.html`.
-- **Local server (recommended for demos):**
-  ```bash
-  python3 -m http.server 8000
-  # then open http://localhost:8000
-  ```
+```bash
+python3 -m http.server 8000
+# open http://localhost:8000
+```
 
-The first time it opens, it loads two demo classes with about six weeks of made-up attendance, so every screen has something to show. To start the demo over, click **Reset demo data** in the footer.
+You can also double-click `index.html`.
 
-## What it does
+### Demo accounts
 
-| Screen | Purpose |
+| Role | Login | Password |
+|---|---|---|
+| HOD / Admin | `hod@csc.demo` or `CSC/STAFF/001` | `admin123` |
+| Lecturer | `adeleke@csc.demo` or `CSC/STAFF/014` | `lecturer123` |
+| Student check | Matric `BSP/CSC/ND/24/010` | No password needed |
+
+The sign-in page also has one-click demo buttons.
+
+The app comes with sample data: two levels (ND I and ND II), six courses, four lecturers, 32 students and about seven weeks of lectures. Today is left unmarked so you can take a register live. To start the demo over, go to **Settings → Reset demo data**.
+
+## Who uses what
+
+| User | Screens |
 |---|---|
-| **Today** | Take the register for a day. Mark each student **P**resent, **L**ate, **A**bsent or **E**xcused. Use *Mark rest present* to finish in one click. It works from the keyboard too: ↑ ↓ to move, P / L / A / E to mark. |
-| **Register** | The month as a grid, like the paper register book: `/` for present, `O` for absent. Click a square to change it. You can print it or export it as CSV. |
-| **Students** | Add or remove students, create classes, and see each student's attendance rate. |
-| **Insights** | The class attendance rate for the month, a day-by-day chart, students below 85% ("Needs follow-up"), and students with full attendance. |
+| **Lecturer** | Overview (today's lectures, course cards, students to watch) · Take attendance (per lecture, with keyboard shortcuts) · Course register (grid, chart, CSV, print) · Student lookup |
+| **HOD / Admin** | Department overview (weekly chart, courses, students at risk, lecturer activity) · Courses (assign lecturers) · Students (register and remove) · Lecturers · Exam eligibility report (per level, CSV, print) · Settings |
+| **Students and parents** | Check attendance with a matric number: rate per course, exam status, printable slip |
+
+## Adding the school logo and colours
+
+- **Logo:** save the official logo as `assets/logo.png`. It replaces the drawn "BSP" crest everywhere, with no code changes.
+- **Colours:** the first block of `css/styles.css` holds `--brand`, `--brand-2` and `--gold`. Change those three values to the school's colours and the whole app follows.
 
 ## Project structure
 
 ```
-index.html        page shell: header, navigation, footer
-css/styles.css    all styling (light + dark mode, print, mobile)
-js/store.js       data layer: classes, students, marks, stats, CSV export
-js/app.js         screens, routing and interactions
-docs/PLAN.md      project plan and presentation outline
+index.html            page shell and script tags
+css/styles.css        all styling: brand tokens, light/dark mode, mobile, print
+js/store.js           data layer: seed data, users, courses, students, lectures, statistics
+js/ui.js              shared helpers: icons, chart, rate bars, toasts, CSV download
+js/views/public.js    sign in, student attendance check, about the project
+js/views/lecturer.js  lecturer overview, take attendance, course register, student page
+js/views/admin.js     HOD overview, courses, students, lecturers, eligibility report, settings
+js/app.js             router, sidebar shell, click and form handling
+docs/PLAN.md          project plan and presentation guide
 ```
 
-`store.js` is the only file that knows where data is kept. When a backend is added, only that file has to change. The screens stay as they are.
+`store.js` is the only file that reads or writes data. Moving to a real database later means rewriting that one file. The screens stay the same.
 
 ## Tech
 
-It uses plain HTML, CSS and JavaScript, with no frameworks and no build step. The fonts are Newsreader and IBM Plex, loaded from Google Fonts.
+Plain HTML, CSS and JavaScript, with no framework and no build step. The fonts are Newsreader and IBM Plex, from Google Fonts.

@@ -3,48 +3,25 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Rollbook · Attendance Register</title>
-  <meta name="description" content="A simple, fast attendance register for class teachers.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d2b3a'/%3E%3Cpath d='M11 23 21 9' stroke='%23f4efe4' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+  <title>Student Attendance Register · Best Solution Polytechnic</title>
+  <meta name="description" content="Web-based student attendance register for lecturers, the HOD and students. A project by Awodosu Ibrahim Olamilekan (BSP/CSC/ND/24/010).">
+  <meta name="theme-color" content="#10233f">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 56'%3E%3Cpath d='M24 2 44 8v19c0 13-8.5 22.5-20 27C12.5 49.5 4 40 4 27V8z' fill='%2310233f' stroke='%23c39a45' stroke-width='3'/%3E%3Ctext x='24' y='34' text-anchor='middle' font-family='Georgia' font-weight='700' font-size='13' fill='%23f6f1e6'%3EBSP%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <a class="skip" href="#view">Skip to content</a>
-
-  <header class="masthead">
-    <div class="masthead__inner">
-      <a class="wordmark" href="#/today" aria-label="Rollbook home">
-        <svg class="wordmark__mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7"/><path d="M11 23 21 9"/></svg>
-        Rollbook
-      </a>
-
-      <nav class="tabs" aria-label="Main">
-        <a href="#/today" data-route="today">Today</a>
-        <a href="#/register" data-route="register">Register</a>
-        <a href="#/students" data-route="students">Students</a>
-        <a href="#/insights" data-route="insights">Insights</a>
-      </nav>
-
-      <label class="class-picker">
-        <span class="class-picker__label">Class</span>
-        <select id="classSelect" aria-label="Class"></select>
-      </label>
-    </div>
-  </header>
-
-  <main id="view" class="page" tabindex="-1"></main>
-
-  <footer class="colophon">
-    <span>Rollbook &middot; prototype. Data is saved in this browser only.</span>
-    <button type="button" class="linklike" id="resetDemo">Reset demo data</button>
-  </footer>
-
+  <div id="app"></div>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <noscript><p style="padding:24px">This app needs JavaScript switched on.</p></noscript>
 
   <script src="js/store.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/views/public.js"></script>
+  <script src="js/views/lecturer.js"></script>
+  <script src="js/views/admin.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
