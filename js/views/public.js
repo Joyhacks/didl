@@ -95,13 +95,17 @@
   F.signin = function (form) {
     var d = UI.formData(form);
     var err = document.getElementById('signinError');
-    var u = S.signIn(d.login, d.password);
-    if (!u) {
-      err.textContent = 'That email/staff ID and password do not match. Try a demo account below.';
-      err.hidden = false;
-      return;
-    }
-    location.hash = '#/dashboard';
+    var btn = form.querySelector('button');
+    btn.disabled = true;
+    S.signIn(d.login, d.password).then(function (u) {
+      btn.disabled = false;
+      if (!u) {
+        err.textContent = 'That email/staff ID and password do not match. Try a demo account below.';
+        err.hidden = false;
+        return;
+      }
+      location.hash = '#/dashboard';
+    });
   };
 
   /* ---------------- student report (shared) ---------------- */

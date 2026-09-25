@@ -23,6 +23,46 @@
   var uid = function (p) { return p + '-' + Math.random().toString(36).slice(2, 10); };
   var normMatric = function (m) { return String(m || '').trim().toUpperCase().replace(/\s+/g, ''); };
 
+  var normLevel = function (v) {
+    var x = String(v || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    var map = { ND1: 'ND I', NDI: 'ND I', ND2: 'ND II', NDII: 'ND II', HND1: 'HND I', HNDI: 'HND I', HND2: 'HND II', HNDII: 'HND II' };
+    return map[x] || '';
+  };
+
+  // Split one CSV / tab-separated line, honouring "quoted, cells".
+  function splitRow(line) {
+    var sep = line.indexOf('\t') > -1 ? '\t' : ',';
+    var out = [], cur = '', q = false;
+    for (var i = 0; i < line.length; i++) {
+      var ch = line[i];
+      if (q) {
+        if (ch === '"' && line[i + 1] === '"') { cur += '"'; i++; }
+        else if (ch === '"') q = false;
+        else cur += ch;
+      } else if (ch === '"') q = true;
+      else if (ch === sep) { out.push(cur); cur = ''; }
+      else cur += ch;
+    }
+    out.push(cur);
+    return out.map(function (c) { return c.trim(); });
+  }
+
+  /* passwords */
+  function sha256(text) {
+    if (!(window.crypto && crypto.subtle && window.TextEncoder)) return Promise.resolve('plain:' + text);
+    return crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)).then(function (buf) {
+      return Array.prototype.map.call(new Uint8Array(buf), function (b) { return b.toString(16).padStart(2, '0'); }).join('');
+    });
+  }
+  function checkPassword(u, pw) {
+    if (u.hash) return sha256(u.salt + pw).then(function (h) { return h === u.hash; });
+    return Promise.resolve(u.password === pw);
+  }
+  function setPassword(u, pw) {
+    var salt = uid('salt');
+    return sha256(salt + pw).then(function (h) { u.salt = salt; u.hash = h; delete u.password; save(); });
+  }
+
   // Seeded random numbers so the demo data is identical on every machine.
   function rng(seed) {
     return function () {
@@ -172,14 +212,29 @@
       var id; try { id = localStorage.getItem(AUTH_KEY); } catch (e) { id = S._auth; }
       return find(state.users, id || S._auth);
     },
+    // Resolves to the user, or null. Passwords are kept as salted SHA-256
+    // hashes; a plain demo password is upgraded to a hash on first sign-in.
     signIn: function (login, password) {
       var l = String(login || '').trim().toLowerCase();
-      var u = state.users.find(function (x) {
-        return (x.email.toLowerCase() === l || x.staffId.toLowerCase() === l) && x.password === password;
+      var u = state.users.find(function (x) { return x.email.toLowerCase() === l || x.staffId.toLowerCase() === l; });
+      if (!u) return Promise.resolve(null);
+      return checkPassword(u, password).then(function (ok) {
+        if (!ok) return null;
+        S.signInAs(u.id);
+        return u.hash ? u : setPassword(u, password).then(function () { return u; });
       });
-      if (u) S.signInAs(u.id);
-      return u || null;
     },
+    changePassword: function (id, current, next) {
+      var u = find(state.users, id);
+      if (!u) return Promise.reject(new Error('Account not found.'));
+      if (String(next || '').length < 6) return Promise.reject(new Error('The new password must be at least 6 characters.'));
+      return checkPassword(u, current).then(function (ok) {
+        if (!ok) throw new Error('Your current password is not correct.');
+        return setPassword(u, next);
+      });
+    },
+    // Admin sets a temporary password for a lecturer who forgot theirs.
+    resetPassword: function (id, temp) { var u = find(state.users, id); return setPassword(u, temp); },
     signInAs: function (id) { S._auth = id; try { localStorage.setItem(AUTH_KEY, id); } catch (e) { /* ignore */ } },
     signOut: function () { S._auth = null; try { localStorage.removeItem(AUTH_KEY); } catch (e) { /* ignore */ } },
 
@@ -192,6 +247,15 @@
       }
       var u = Object.assign({ id: uid('u'), role: 'lecturer', password: 'lecturer123' }, d);
       state.users.push(u); save(); return u;
+    },
+    updateUser: function (id, d) {
+      var u = find(state.users, id);
+      var clash = state.users.some(function (x) {
+        return x.id !== id && (x.email.toLowerCase() === d.email.toLowerCase() || x.staffId.toLowerCase() === d.staffId.toLowerCase());
+      });
+      if (clash) throw new Error('Another staff member already uses that email or staff ID.');
+      ['title', 'name', 'position', 'staffId', 'email'].forEach(function (k) { if (d[k] != null) u[k] = String(d[k]).trim(); });
+      save(); return u;
     },
     removeUser: function (id) {
       state.users = state.users.filter(function (u) { return u.id !== id; });
@@ -212,7 +276,15 @@
       var c = { id: uid('k'), code: code, title: d.title.trim(), level: d.level, units: Number(d.units) || 2, lecturerId: d.lecturerId || '', days: (d.days || []).map(Number), time: d.time || '08:00' };
       state.courses.push(c); save(); return c;
     },
-    updateCourse: function (id, patch) { Object.assign(find(state.courses, id), patch); save(); },
+    updateCourse: function (id, patch) {
+      if (patch.code != null) {
+        patch.code = patch.code.trim().toUpperCase().replace(/\s+/g, ' ');
+        if (state.courses.some(function (c) { return c.id !== id && c.code === patch.code; })) throw new Error(patch.code + ' already exists.');
+      }
+      if (patch.units != null) patch.units = Number(patch.units) || 2;
+      if (patch.days) patch.days = patch.days.map(Number);
+      Object.assign(find(state.courses, id), patch); save();
+    },
     removeCourse: function (id) {
       state.courses = state.courses.filter(function (c) { return c.id !== id; });
       state.lectures = state.lectures.filter(function (l) { return l.courseId !== id; });
@@ -236,6 +308,44 @@
       var s = { id: uid('s'), matric: matric, surname: d.surname.trim(), first: d.first.trim(), other: (d.other || '').trim(), gender: d.gender || '', level: d.level, joined: keyOf(new Date()) };
       state.students.push(s); save(); return s;
     },
+    updateStudent: function (id, d) {
+      var s = find(state.students, id);
+      var matric = normMatric(d.matric);
+      if (!matric) throw new Error('Matric number is required.');
+      var other = S.studentByMatric(matric);
+      if (other && other.id !== id) throw new Error(matric + ' belongs to another student.');
+      s.matric = matric;
+      ['surname', 'first', 'other', 'gender', 'level'].forEach(function (k) { if (d[k] != null) s[k] = String(d[k]).trim(); });
+      save(); return s;
+    },
+
+    // Read a class list pasted from Excel or a CSV file.
+    // Columns: matric, surname, first name, other name, level, gender.
+    parseClassList: function (text, defaultLevel) {
+      var rows = [], errors = [], seen = {};
+      String(text || '').split(/\r?\n/).forEach(function (line, i) {
+        if (!line.trim()) return;
+        var cells = splitRow(line);
+        var matric = normMatric(cells[0]);
+        if (i === 0 && /matric/i.test(cells[0] || '')) return; // header row
+        var n = i + 1;
+        if (!matric) { errors.push('Line ' + n + ': matric number is missing.'); return; }
+        if (!cells[1] || !cells[2]) { errors.push('Line ' + n + ' (' + matric + '): surname and first name are required.'); return; }
+        if (seen[matric]) { errors.push('Line ' + n + ': ' + matric + ' appears twice in the list.'); return; }
+        if (S.studentByMatric(matric)) { errors.push('Line ' + n + ': ' + matric + ' is already registered.'); return; }
+        var level = normLevel(cells[4]) || defaultLevel;
+        if (cells[4] && !normLevel(cells[4])) { errors.push('Line ' + n + ' (' + matric + '): unknown level "' + cells[4] + '".'); return; }
+        var g = String(cells[5] || '').trim().charAt(0).toUpperCase();
+        seen[matric] = 1;
+        rows.push({ matric: matric, surname: cells[1].trim(), first: cells[2].trim(), other: (cells[3] || '').trim(), level: level, gender: g === 'M' || g === 'F' ? g : '' });
+      });
+      return { rows: rows, errors: errors };
+    },
+    importStudents: function (rows) {
+      rows.forEach(function (d) { S.addStudent(d); });
+      return rows.length;
+    },
+
     removeStudent: function (id) {
       state.students = state.students.filter(function (s) { return s.id !== id; });
       state.lectures.forEach(function (l) { delete l.marks[id]; });
@@ -333,6 +443,21 @@
           return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
         }).join(',');
       }).join('\n');
+    },
+
+    /* backup: move the whole register to another device */
+    backup: function () {
+      return JSON.stringify({ app: 'bsp-attendance', exported: new Date().toISOString(), data: state }, null, 1);
+    },
+    restore: function (text) {
+      var obj;
+      try { obj = JSON.parse(String(text).replace(/^\ufeff/, '')); } catch (e) { throw new Error('That file is not a valid backup.'); }
+      var d = obj && obj.app === 'bsp-attendance' ? obj.data : null;
+      if (!d || d.version !== 3 || !Array.isArray(d.users) || !Array.isArray(d.students) || !Array.isArray(d.courses) || !Array.isArray(d.lectures)) {
+        throw new Error('That file is not a backup from this app.');
+      }
+      state = d; save();
+      return { students: d.students.length, lectures: d.lectures.length };
     },
 
     reset: function () { state = seed(); save(); }

@@ -47,8 +47,8 @@ Similar attendance systems built by Nigerian students were reviewed:
 
 | Role | Can do |
 |---|---|
-| HOD / Admin | Everything: manage courses, lecturers and students, view all registers, print the eligibility report, change settings |
-| Lecturer | Take and edit attendance for their own courses, view registers, look up students |
+| HOD / Admin | Everything: add, edit and remove courses, lecturers and students; import a class list from Excel; view all registers; print the eligibility report; reset passwords; back up and restore; change settings |
+| Lecturer | Take and edit attendance for their own courses, view registers, look up students, change their own password |
 | Student / Parent | Check attendance by matric number (read-only, no login) |
 
 ### Architecture
@@ -97,8 +97,8 @@ A student with no mark for a lecture counts as absent. Excused absences (for exa
 
 | Limitation now | Next stage |
 |---|---|
-| Data is kept in one browser only | A database server (e.g. PostgreSQL via Supabase), so everyone shares the same data |
-| Demo passwords are stored in plain text | Real authentication with hashed passwords and password reset |
+| Data is kept in one browser (a backup file can move it to another device) | A database server (e.g. PostgreSQL via Supabase), so everyone shares the same data live |
+| Passwords are hashed, but checked in the browser | Server-side authentication, with password reset by email |
 | A student could sit in for a friend | QR code or fingerprint check-in |
 | No notifications | SMS or email to students and parents when they drop below 75% |
 | — | Integration with the school's course registration portal |
@@ -128,6 +128,8 @@ A student with no mark for a lecture counts as absent. Excused absences (for exa
 ### Likely questions
 
 - **"Where is the data stored?"** In the browser for this prototype. All data access goes through one file (`store.js`), so moving to a database server does not change the screens.
+- **"Are the passwords safe?"** They are never stored as typed. Each one is salted and hashed with SHA-256. In the full version the check moves to a server.
+- **"How does the HOD add 200 students?"** Students → Import class list. Paste the columns from Excel, and the system flags duplicates and mistakes before importing.
 - **"How do you stop proxy attendance?"** The lecturer marks attendance while looking at the class, instead of passing a sheet round. QR code or fingerprint check-in is planned for the next stage.
 - **"What happens if a student is sick?"** The lecturer marks them **E (Excused)**. That lecture does not count against them.
 - **"Can the 75% be changed?"** Yes. The HOD sets it in Settings, and every screen updates.

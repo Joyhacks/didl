@@ -356,6 +356,7 @@
     return '<a class="back" href="#/' + (user.role === 'admin' ? 'courses' : 'dashboard') + '">' + UI.icon('left') + (user.role === 'admin' ? 'All courses' : 'Overview') + '</a>' +
       UI.head(esc(c.code) + ' &middot; ' + esc(c.level) + ' &middot; ' + c.units + ' units &middot; ' + esc(UI.staffName(lecturer)), esc(c.title),
         (edit ? '<button class="btn btn--ink" data-act="quick-start" data-course="' + c.id + '">' + UI.icon('take') + 'Take attendance</button>' : '') +
+        (user.role === 'admin' ? '<a class="btn btn--quiet" href="#/edit/course/' + c.id + '">Edit</a>' : '') +
         '<button class="btn btn--quiet" data-act="course-csv" data-course="' + c.id + '">' + UI.icon('download') + 'CSV</button>' +
         '<button class="btn btn--quiet" data-act="print">' + UI.icon('print') + 'Print</button>') +
 
@@ -431,6 +432,7 @@
     if (!s) return UI.empty('Student not found.', '<a class="btn btn--ink" href="#/students">Back</a>');
     return '<a class="back" href="#/students">' + UI.icon('left') + 'Students</a>' +
       V.studentReport(s) +
-      '<div class="actions-row no-print"><button class="btn btn--quiet" data-act="print">' + UI.icon('print') + 'Print attendance slip</button></div>';
+      '<div class="actions-row no-print"><button class="btn btn--quiet" data-act="print">' + UI.icon('print') + 'Print attendance slip</button>' +
+      (user.role === 'admin' ? '<a class="btn btn--quiet" href="#/edit/student/' + s.id + '">Edit details</a>' : '') + '</div>';
   };
 })();

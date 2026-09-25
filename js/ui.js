@@ -24,6 +24,7 @@
     right: '<path d="m9.5 6 6 6-6 6"/>',
     print: '<path d="M7 9V3.5h10V9"/><rect x="3" y="9" width="18" height="8" rx="1.5"/><path d="M7 14h10v6.5H7z"/>',
     download: '<path d="M12 4v11m-4.5-4.5L12 15l4.5-4.5M5 20h14"/>',
+    upload: '<path d="M12 15V4m-4.5 4.5L12 4l4.5 4.5M5 20h14"/>',
     clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
     arrow: '<path d="M5 12h14m-5-5 5 5-5 5"/>',
     student: '<path d="M2.5 9 12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v5c0 1.5 2.5 3 5.5 3s5.5-1.5 5.5-3v-5M21.5 9v5"/>',
@@ -136,9 +137,11 @@
       UI._toast = setTimeout(function () { t.classList.remove('is-on'); }, 2600);
     },
 
-    download: function (name, text) {
+    download: function (name, text, type) {
       var a = document.createElement('a');
-      a.href = URL.createObjectURL(new Blob(['﻿' + text], { type: 'text/csv;charset=utf-8' }));
+      // CSV gets a byte-order mark so Excel reads Nigerian names with accents correctly.
+      var csv = !type;
+      a.href = URL.createObjectURL(new Blob([(csv ? '﻿' : '') + text], { type: (type || 'text/csv') + ';charset=utf-8' }));
       a.download = name.replace(/[\\/:*?"<>| ]+/g, '-');
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);

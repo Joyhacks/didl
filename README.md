@@ -6,7 +6,7 @@ A web-based attendance register for the **Department of Computer Science, Best S
 
 Lecturers take the register for each lecture. The HOD sees the whole department in one place. Students check their own attendance with their matric number. The system automatically flags anyone below the **75% attendance needed to sit the exam**.
 
-> This is a front-end prototype with no backend yet. All data is stored in the browser (`localStorage`). It is a student project, not the official school portal.
+> This is a front-end prototype with no backend yet. All data is stored in the browser (`localStorage`); use **Settings → Backup & restore** to move it to another device. Passwords are stored as salted SHA-256 hashes, but because everything runs in the browser this is still not production security. It is a student project, not the official school portal.
 
 ## Run it
 
@@ -36,7 +36,8 @@ The app comes with sample data: two levels (ND I and ND II), six courses, four l
 | User | Screens |
 |---|---|
 | **Lecturer** | Overview (today's lectures, course cards, students to watch) · Take attendance (per lecture, with keyboard shortcuts) · Course register (grid, chart, CSV, print) · Student lookup |
-| **HOD / Admin** | Department overview (weekly chart, courses, students at risk, lecturer activity) · Courses (assign lecturers) · Students (register and remove) · Lecturers · Exam eligibility report (per level, CSV, print) · Settings |
+| **HOD / Admin** | Department overview (weekly chart, courses, students at risk, lecturer activity) · Courses (add, edit, assign lecturers, set lecture days) · Students (register, edit, remove, **import a class list from Excel/CSV**) · Lecturers (add, edit, reset password) · Exam eligibility report (per level, CSV, print) · Settings (incl. **backup & restore**) |
+| **Every staff member** | My account: view details and change password |
 | **Students and parents** | Check attendance with a matric number: rate per course, exam status, printable slip |
 
 ## Branding
@@ -56,6 +57,7 @@ js/ui.js              shared helpers: icons, chart, rate bars, toasts, CSV downl
 js/views/public.js    sign in, student attendance check, about the project
 js/views/lecturer.js  lecturer overview, take attendance, course register, student page
 js/views/admin.js     HOD overview, courses, students, lecturers, eligibility report, settings
+js/views/manage.js    edit pages, class-list import, my account, backup & restore
 js/app.js             router, sidebar shell, click and form handling
 docs/PLAN.md          project plan and presentation guide
 ```

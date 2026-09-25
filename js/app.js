@@ -29,12 +29,12 @@
       ['students', 'Students', 'users']
     ]
   };
-  var ADMIN_ONLY = { courses: 1, lecturers: 1, reports: 1, settings: 1 };
+  var ADMIN_ONLY = { courses: 1, lecturers: 1, reports: 1, settings: 1, edit: 1, import: 1 };
 
   var TITLES = {
     login: 'Sign in', check: 'Check attendance', about: 'About the project', dashboard: 'Overview',
     take: 'Take attendance', course: 'Course register', student: 'Student', students: 'Students',
-    courses: 'Courses', lecturers: 'Lecturers', reports: 'Eligibility report', settings: 'Settings'
+    courses: 'Courses', lecturers: 'Lecturers', reports: 'Eligibility report', settings: 'Settings', edit: 'Edit', import: 'Import class list', account: 'My account'
   };
 
   function parseHash() {
@@ -53,6 +53,13 @@
       case 'lecturers': return V.lecturers(params, user);
       case 'reports': return V.reports(params, user);
       case 'settings': return V.settings(params, user);
+      case 'account': return V.account(params, user);
+      case 'import': return V.importStudents(params, user);
+      case 'edit':
+        if (params[0] === 'student') return V.editStudent(params.slice(1), user);
+        if (params[0] === 'course') return V.editCourse(params.slice(1), user);
+        if (params[0] === 'staff') return V.editStaff(params.slice(1), user);
+        return null;
     }
     return null;
   }
@@ -60,7 +67,8 @@
   // Which sidebar item to highlight for pages that are not in the menu.
   function navKey(name, user) {
     if (name === 'course') return user.role === 'admin' ? 'courses' : 'dashboard';
-    if (name === 'student') return 'students';
+    if (name === 'student' || name === 'import') return 'students';
+    if (name === 'edit') return { student: 'students', course: 'courses', staff: 'lecturers' }[parseHash().params[0]];
     return name;
   }
 
@@ -77,7 +85,7 @@
           return '<a href="#/' + n[0] + '"' + (n[0] === active ? ' aria-current="page"' : '') + '>' + UI.icon(n[2]) + '<span>' + n[1] + '</span></a>';
         }).join('') + '</nav>' +
         '<div class="side__foot">' +
-          '<div class="me">' + UI.avatar(first, last) + '<span><b>' + esc(UI.staffName(user)) + '</b><small>' + (user.role === 'admin' ? esc(user.position || 'Administrator') : 'Lecturer') + '</small></span></div>' +
+          '<a class="me" href="#/account" title="My account"' + (name === 'account' ? ' aria-current="page"' : '') + '>' + UI.avatar(first, last) + '<span><b>' + esc(UI.staffName(user)) + '</b><small>My account</small></span></a>' +
           '<button class="icon-btn icon-btn--ghost" data-act="signout" aria-label="Sign out" title="Sign out">' + UI.icon('logout') + '</button>' +
         '</div>' +
       '</aside>' +

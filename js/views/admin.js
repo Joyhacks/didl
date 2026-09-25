@@ -125,7 +125,7 @@
               '<td><span class="chip">' + esc(c.level) + '</span></td>' +
               '<td><select class="select select--sm" data-change="assign" data-course="' + c.id + '" aria-label="Lecturer for ' + esc(c.code) + '">' + opts(c.lecturerId) + '</select></td>' +
               '<td class="num mono hide-sm">' + S.lectures(c.id).length + '</td>' +
-              '<td class="actions"><button class="linklike linklike--danger" data-act="remove-course" data-id="' + c.id + '">Remove</button></td></tr>';
+              '<td class="actions"><a class="linklike" href="#/edit/course/' + c.id + '">Edit</a><button class="linklike linklike--danger" data-act="remove-course" data-id="' + c.id + '">Remove</button></td></tr>';
           }).join('') + '</tbody></table>' : UI.empty('No courses yet.')) +
         '</section>' +
         '<aside class="panel pad form-panel"><form class="form" data-form="add-course" autocomplete="off">' +
@@ -198,7 +198,7 @@
             '<td><span class="chip">' + esc(s.level) + '</span></td>' +
             '<td>' + UI.rateBar(rate) + '</td>' +
             '<td class="num mono ' + (bad ? 'is-bad' : '') + '">' + bad + '</td>' +
-            (isAdmin ? '<td class="actions"><button class="linklike linklike--danger" data-act="remove-student" data-id="' + s.id + '">Remove</button></td>' : '') + '</tr>';
+            (isAdmin ? '<td class="actions"><a class="linklike" href="#/edit/student/' + s.id + '">Edit</a><button class="linklike linklike--danger" data-act="remove-student" data-id="' + s.id + '">Remove</button></td>' : '') + '</tr>';
         }).join('') + '</tbody></table>'
         : UI.empty(all.length ? 'No student matches “' + esc(stu.q) + '”.' : 'No students registered yet.')) +
       '</section>' +
@@ -206,7 +206,7 @@
 
     if (!isAdmin) return UI.head('Student lookup', 'Students') + table;
 
-    return UI.head('Admin', 'Students') +
+    return UI.head('Admin', 'Students', '<a class="btn btn--quiet" href="#/import">' + UI.icon('users') + 'Import class list</a>') +
       '<div class="split"><div>' + table + '</div>' +
         '<aside class="panel pad form-panel"><form class="form" data-form="add-student" autocomplete="off">' +
           '<h2 class="form__title">Register a student</h2>' +
@@ -264,7 +264,7 @@
               '<td class="mono hide-sm">' + esc(u.staffId) + '</td>' +
               '<td>' + (cs.length ? cs.map(function (c) { return '<a class="code code--sm" href="#/course/' + c.id + '">' + esc(c.code) + '</a>'; }).join(' ') : '<span class="muted">None</span>') + '</td>' +
               '<td class="num mono hide-sm">' + n + '</td>' +
-              '<td class="actions">' + (u.id === user.id ? '<span class="muted">You</span>' : '<button class="linklike linklike--danger" data-act="remove-staff" data-id="' + u.id + '">Remove</button>') + '</td></tr>';
+              '<td class="actions"><a class="linklike" href="#/edit/staff/' + u.id + '">Edit</a>' + (u.id === user.id ? '<span class="muted">You</span>' : '<button class="linklike linklike--danger" data-act="remove-staff" data-id="' + u.id + '">Remove</button>') + '</td></tr>';
           }).join('') + '</tbody></table></section>' +
         '<aside class="panel pad form-panel"><form class="form" data-form="add-staff" autocomplete="off">' +
           '<h2 class="form__title">Add a lecturer</h2>' +
@@ -365,11 +365,12 @@
           field('threshold', 'Minimum attendance for exams (%)', 'type="number" min="0" max="100" required', 'Students below this in a course are flagged as not eligible.') +
           '<button class="btn btn--ink">Save settings</button>' +
         '</form>' +
+        '<div class="stack">' + V.backupPanel() +
         '<section class="panel pad danger">' +
           '<h2 class="form__title">Demo data</h2>' +
           '<p>Put back the sample department, lecturers, students and seven weeks of lectures. Anything you have added will be lost.</p>' +
           '<button class="btn btn--danger" data-act="reset">Reset demo data</button>' +
-        '</section>' +
+        '</section></div>' +
       '</div>';
   };
 
