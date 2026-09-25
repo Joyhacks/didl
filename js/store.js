@@ -209,7 +209,7 @@
     addCourse: function (d) {
       var code = d.code.trim().toUpperCase().replace(/\s+/g, ' ');
       if (state.courses.some(function (c) { return c.code === code; })) throw new Error(code + ' already exists.');
-      var c = { id: uid('k'), code: code, title: d.title.trim(), level: d.level, units: Number(d.units) || 2, lecturerId: d.lecturerId || '', days: [], time: d.time || '08:00' };
+      var c = { id: uid('k'), code: code, title: d.title.trim(), level: d.level, units: Number(d.units) || 2, lecturerId: d.lecturerId || '', days: (d.days || []).map(Number), time: d.time || '08:00' };
       state.courses.push(c); save(); return c;
     },
     updateCourse: function (id, patch) { Object.assign(find(state.courses, id), patch); save(); },
@@ -233,7 +233,7 @@
       var matric = normMatric(d.matric);
       if (!matric) throw new Error('Matric number is required.');
       if (S.studentByMatric(matric)) throw new Error(matric + ' is already registered.');
-      var s = { id: uid('s'), matric: matric, surname: d.surname.trim(), first: d.first.trim(), other: (d.other || '').trim(), gender: d.gender || '', level: d.level };
+      var s = { id: uid('s'), matric: matric, surname: d.surname.trim(), first: d.first.trim(), other: (d.other || '').trim(), gender: d.gender || '', level: d.level, joined: keyOf(new Date()) };
       state.students.push(s); save(); return s;
     },
     removeStudent: function (id) {
@@ -267,7 +267,10 @@
     // counts as absent; excused lectures are left out of the rate.
     stat: function (studentId, courseId) {
       var t = { P: 0, L: 0, A: 0, E: 0, held: 0 };
+      var s = S.student(studentId);
       S.lectures(courseId).forEach(function (l) {
+        // A lecture before the student joined does not count, unless they were marked for it.
+        if (!S.enrolled(s, l)) return;
         t.held++;
         t[l.marks[studentId] || 'A']++;
       });
@@ -301,9 +304,16 @@
       });
     },
 
+    // Was the student on the roll for this lecture? Students added
+    // mid-semester are not counted absent for lectures before they joined.
+    enrolled: function (s, l) {
+      return !s || !s.joined || l.date >= s.joined || !!l.marks[s.id];
+    },
+
     // Present-or-late share for one lecture.
     lectureRate: function (l) {
       var students = S.courseStudents(l.courseId), inClass = 0, counted = 0, marked = 0;
+      students = students.filter(function (s) { return S.enrolled(s, l); });
       students.forEach(function (s) {
         var m = l.marks[s.id];
         if (m) marked++;
@@ -319,6 +329,7 @@
       return rows.map(function (r) {
         return r.map(function (v) {
           v = v == null ? '' : String(v);
+          if (/^[=+\-@\t\r]/.test(v)) v = "'" + v;
           return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
         }).join(',');
       }).join('\n');

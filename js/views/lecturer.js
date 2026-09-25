@@ -61,7 +61,11 @@
             (l ? '<span class="today__state">' + r.marked + ' of ' + r.total + ' marked</span><a class="btn btn--quiet btn--sm" href="#/take/' + c.id + '/' + l.id + '">Continue</a>'
                : '<button class="btn btn--ink btn--sm" data-act="quick-start" data-course="' + c.id + '">Take attendance</button>') +
             '</div>';
-        }).join('') + '</section>' : '') +
+        }).join('') + '</section>'
+        : courses.length ? '<section class="today today--quiet">' +
+          '<h2 class="today__h">' + UI.icon('clock') + 'Today, ' + UI.fmt(today, { weekday: 'long', day: 'numeric', month: 'long' }) + '</h2>' +
+          '<div class="today__item"><span class="today__what">No lectures on your timetable today.<small>Holding a make-up or extra class? Start a register for any course and date.</small></span>' +
+          '<a class="btn btn--ink btn--sm" href="#/take">Start a register</a></div></section>' : '') +
 
       '<section class="figs">' +
         fig(courses.length, 'Courses') + fig(held, 'Lectures held') +
@@ -137,7 +141,9 @@
 
   F.start = function (form) {
     var d = UI.formData(form);
-    var l = S.startLecture(form.dataset.course, d.date, d.time, d.topic);
+    // Opening the same lecture twice reuses its register instead of making a copy.
+    var l = S.lectures(form.dataset.course).filter(function (x) { return x.date === d.date && x.time === d.time; })[0] ||
+      S.startLecture(form.dataset.course, d.date, d.time, d.topic);
     location.hash = '#/take/' + form.dataset.course + '/' + l.id;
   };
   A['quick-start'] = function (btn) {

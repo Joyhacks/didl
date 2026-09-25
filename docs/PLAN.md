@@ -112,7 +112,7 @@ A student with no mark for a lecture counts as absent. Excused absences (for exa
 | 3 | Aim and objectives | 0:45 | Section 2 |
 | 4 | Similar projects | 0:45 | Section 3, and what is different about yours |
 | 5 | **Demo: student check** | 1:00 | Sign-in page → "Are you a student?" → type `BSP/CSC/ND/24/010` → your own attendance slip |
-| 6 | **Demo: lecturer** | 2:00 | Sign in as Mr. Adeleke → "Take attendance" on today's lecture → press P, P, L, A → "Mark rest present" → open the course register |
+| 6 | **Demo: lecturer** | 2:00 | Sign in as Mr. Adeleke → "Take attendance" on today's lecture (on a Friday or weekend, click "Start a register" instead) → press P, P, L, A → "Mark rest present" → open the course register |
 | 7 | **Demo: HOD** | 1:30 | Sign in as the HOD → overview: weekly chart, students at risk, lecturer activity → exam eligibility report → Print |
 | 8 | System design | 1:00 | Section 4: roles, architecture diagram, formula |
 | 9 | Limitations and future work | 0:30 | Section 6 |

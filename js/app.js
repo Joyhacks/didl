@@ -153,8 +153,10 @@
     if (e.key === 'Escape') document.body.classList.remove('nav-open');
   });
 
-  // Chart hover tooltip.
-  document.addEventListener('mousemove', function (e) {
+  // Chart tooltip: follows the mouse, and a tap shows it on phones.
+  document.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('.chart')) showTip(e); });
+  document.addEventListener('mousemove', showTip);
+  function showTip(e) {
     var chart = e.target.closest && e.target.closest('.chart');
     document.querySelectorAll('.chart__tip:not([hidden])').forEach(function (t) { if (!chart || !chart.contains(t)) t.hidden = true; });
     if (!chart) return;
@@ -169,7 +171,7 @@
     var half = tip.offsetWidth / 2 + 4;
     tip.style.left = Math.min(Math.max(e.clientX - box.left, half), box.width - half) + 'px';
     tip.style.top = (e.clientY - box.top - 44) + 'px';
-  });
+  }
 
   render();
 })();

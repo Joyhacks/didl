@@ -136,6 +136,10 @@
           '<div class="form__row"><label>Level<select name="level" class="select">' + S.LEVELS.map(function (l) { return '<option>' + l + '</option>'; }).join('') + '</select></label>' +
           '<label>Usual time<input name="time" type="time" value="08:00"></label></div>' +
           '<label>Lecturer<select name="lecturerId" class="select">' + opts('') + '</select></label>' +
+          '<fieldset class="days"><legend>Lecture days</legend>' +
+            ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map(function (d, i) {
+              return '<label class="day"><input type="checkbox" name="days" value="' + (i + 1) + '"><span>' + d + '</span></label>';
+            }).join('') + '</fieldset>' +
           '<p class="form__error" hidden></p>' +
           '<button class="btn btn--ink btn--block">' + UI.icon('plus') + 'Add course</button>' +
         '</form></aside>' +
